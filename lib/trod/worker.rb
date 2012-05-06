@@ -13,12 +13,6 @@ class Trod::Worker < Trod::Command
   }
 
   def run!
-    # case options.type
-    # when :rspec;    Trod::Workers::Rspec.new(options)
-    # when :cucumber; Trod::Workers::Cucumber.new(options)
-    # else; raise "unknown worker type #{options.type}"
-    # end
-
     register
     prepare_project
     start_test_server
@@ -28,7 +22,7 @@ class Trod::Worker < Trod::Command
   end
 
   def to_s
-    @to_s ||= "#{hostname}:#{Process.pid}"
+    @to_s ||= "worker:#{hostname}:#{Process.pid}"
   end
   alias_method :id, :to_s
 
