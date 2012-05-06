@@ -1,5 +1,13 @@
 class Trod::Arbiter < Trod::Command
 
+  options{|opts, worker|
+
+    opts.on("-w", "--workers ({rspec:5,cucumber:15})") do |workers|
+      worker.options.workers = JSON.parse(workers)
+    end
+
+  }
+
   def run!
     start_redis_server
     report_status

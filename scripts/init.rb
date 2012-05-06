@@ -24,6 +24,7 @@ if arbiter == true
     trod arbiter
     --project #{project.inspect}
     --sha #{sha.inspect}
+    --workers #{workers.to_json.inspect}
   }
 else
   worker = config["worker"] or raise "worker missing"
