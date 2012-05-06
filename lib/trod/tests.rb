@@ -12,12 +12,26 @@ class Trod::Tests
 
   def detect!
     redis.pipelined{
-      detect_specs!.each{|name| redis.rpush(:tests, "specs:#{name}") }
-      detect_scenarios!.each{|name| redis.rpush(:tests, "scenario:#{name}") }
-      @number_of_tests = detect_specs!.size + detect_scenarios!.size
-      redis.set :number_of_tests, @number_of_tests
+      specs     = detect_specs!.map{|name| "spec:#{name}"}
+      scenarios = detect_scenarios!.map{|name| "scenario:#{name}"}
+
+      specs.each{|id| redis.rpush(:specs_needing_to_be_run, id) }
+      scenarios.each{|id| redis.rpush(:scenarios_needing_to_be_run, id) }
+
+      tests = specs + scenarios
+
+      tests.each{|id|
+        redis.hset(:test_results, id, nil)
+        redis.hset(:test_tries, id, 0)
+      }
+
+      redis.set :number_of_tests, @number_of_tests = tests.size
     }
     @tests = nil
+  end
+
+  def [] id
+    Test.new(redis, id)
   end
 
   def each
@@ -33,10 +47,12 @@ class Trod::Tests
   alias_method :size, :number_of_tests
 
   def tests
-    @tests ||= redis.lrange(:tests, 0, number_of_tests-1).each_with_index.map{|test, index|
-      type, name = test.scan(/^(.+?):(.+)$/).first
-      Test.new(redis, index, type, name)
-    }
+    @tests ||= redis.hkeys(:test_results).map{|id| self[id] }
+  end
+
+  def pop_test_waiting_to_be_run worker
+    id = redis.rpop("#{worker.test_type}s_needing_to_be_run")
+    self[id]
   end
 
   private

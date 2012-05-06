@@ -8,20 +8,22 @@ class Trod::Worker < Trod::Server
     super
     @test_type = ENV['TROD_TEST_TYPE']
     @redis     = Redis.connect :url => ENV['TROD_REDIS']
+    logger.info "worker started #{self.inspect}"
   end
 
 
   def run!
+    register
 
-    # register
-    # prepare_project
-    # start_test_server
-    # process_test_queue
-    # unregister
-    # shutdown
 
     require "ruby-debug"
     debugger;1
+
+    prepare_project
+    start_test_server
+    process_test_queue
+    unregister
+    shutdown
   end
 
   def id
@@ -55,16 +57,13 @@ class Trod::Worker < Trod::Server
     @test_queue_name ||= "tests:#{test_type}"
   end
 
-  def report_event event
-    redis.rpush("worker:#{id}:events", "#{Time.now.utc.to_f}:#{event}")
-  end
 
   def register
-    redis.sadd(:workers, self)
+    redis.sadd(:workers, id)
   end
 
   def unregister
-    redis.srem(:workers, self)
+    redis.srem(:workers, id)
   end
 
   def shutdown

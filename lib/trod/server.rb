@@ -27,13 +27,32 @@ class Trod::Server
     @project ||= Trod::Project.new(project_workspace_path)
   end
 
+  def tests
+    @tests ||= Trod::Tests.new(project, redis)
+  end
+
   def logger
     @logger ||= begin
       log_dir = workspace_path.join('log')
-      log_dir.mkdir
+      log_dir.mkdir unless log_dir.exist?
       Logger.new(log_dir.join('trod.log'))
     end
   end
+
+  def report_event event
+    logger.info event
+    redis.hset("#{id}:events", Time.now.utc.to_f, event)
+  end
+
+  # returns the events that arbiter has logged so far
+  def reported_events
+    redis.hgetall("#{id}:events").to_a.map{|t,e| [Time.at(t.to_f),e] }.sort_by(&:first)
+  end
+
+  def inspect
+    %{#<#{self.class} #{id}>}
+  end
+  alias_method :to_s, :inspect
 
 end
 

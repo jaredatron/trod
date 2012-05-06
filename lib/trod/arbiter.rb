@@ -6,8 +6,9 @@ class Trod::Arbiter < Trod::Server
 
   def initialize
     super
-    @number_of_rspec_workers    = ENV['TROD_NUMBER_OF_RSPEC_WORKERS']
-    @number_of_cucumber_workers = ENV['TROD_NUMBER_OF_CUCUMBER_WORKERS']
+    @number_of_rspec_workers    = ENV['TROD_NUMBER_OF_RSPEC_WORKERS'].to_i
+    @number_of_cucumber_workers = ENV['TROD_NUMBER_OF_CUCUMBER_WORKERS'].to_i
+    logger.info "arbitor started #{self.inspect}"
   end
 
   def run!
@@ -20,6 +21,10 @@ class Trod::Arbiter < Trod::Server
 
     require "ruby-debug"
     debugger;1
+  end
+
+  def id
+    "arbitor"
   end
 
   private
@@ -53,6 +58,20 @@ class Trod::Arbiter < Trod::Server
   def start_workers
     report_event "started starting workers"
 
+    workers = \
+      (1..number_of_rspec_workers).to_a.map{:spec} +
+      (1..number_of_cucumber_workers).to_a.map{:scenario}
+
+    puts "\n\n MANUAL FOR NOW \n\n"
+
+    workers.each{|test_type|
+      puts "START A WORKER WITH THIS CONFIG:"
+      puts worker_config.merge(:test_type => test_type).to_json
+      puts
+    }
+
+    puts "\n\n MANUAL FOR NOW \n\n"
+
     # THIS IS A TOTAL HACK FOR TESTING
     #ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker1 && ./init.rb').start
     #ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker2 && ./init.rb').start
@@ -74,21 +93,17 @@ class Trod::Arbiter < Trod::Server
     report_event "shutting down"
   end
 
-  def report_event event
-    redis.hset("arbiter:events", Time.now.utc.to_f, event)
-  end
-
-  # returns the events that arbiter has logged so far
-  def logged_events
-    redis.hgetall("arbiter:events").to_a.map{|t,e| [Time.at(t.to_f),e] }.sort_by(&:first)
-  end
-
-  def tests
-    @tests ||= Trod::Tests.new(project, redis)
-  end
-
   def workers
-    @workers ||= []
+    redis.smembers(:workers).map{|id| }
+  end
+
+  def worker_config
+    {
+      :project_origin => project_origin,
+      :project_sha => project_sha,
+      :role => :worker,
+      :redis => redis.id,
+    }
   end
 
 end
