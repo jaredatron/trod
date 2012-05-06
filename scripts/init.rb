@@ -5,7 +5,7 @@ require 'json'
 require 'pp'
 
 workspace_path = File.expand_path('.')
-project_workspace_path = workspace_path + 'workspace'
+project_workspace_path = File.join workspace_path, 'workspace'
 config_path = File.expand_path('config.json') # this will be cloud tags later
 config = JSON.parse File.read config_path
 config[:workspace_path] = workspace_path
