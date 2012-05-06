@@ -4,7 +4,7 @@ class Trod::Project
 
   attr_reader :root
   def initialize root
-    @root = Pathname(root)
+    @root = root
   end
 
   def rvm?

@@ -10,10 +10,15 @@ class Trod::Server
     end
   end
 
-  attr_reader :project_workspace_path, :project_origin, :project_sha
+  attr_reader \
+    :workspace_path,
+    :project_workspace_path,
+    :project_origin,
+    :project_sha
 
   def initialize
-    @project_workspace_path = ENV['TROD_PROJECT_WORKSPACE_PATH']
+    @workspace_path         = Pathname ENV['TROD_WORKSPACE_PATH']
+    @project_workspace_path = Pathname ENV['TROD_PROJECT_WORKSPACE_PATH']
     @project_origin         = ENV['TROD_PROJECT_ORIGIN']
     @project_sha            = ENV['TROD_PROJECT_SHA']
   end
@@ -23,7 +28,11 @@ class Trod::Server
   end
 
   def logger
-    Logger.new
+    @logger ||= begin
+      log_dir = workspace_path.join('log')
+      log_dir.mkdir
+      Logger.new(log_dir.join('trod.log'))
+    end
   end
 
 end
