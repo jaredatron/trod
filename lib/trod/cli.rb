@@ -1,6 +1,11 @@
+require 'trod'
 require 'ostruct'
 
 class Trod::Cli
+
+  def self.start!
+    new
+  end
 
   attr_reader :options
 
@@ -36,5 +41,3 @@ class Trod::Cli
   end
 
 end
-
-Trod::Cli.new
