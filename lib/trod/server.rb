@@ -7,8 +7,8 @@ class Trod::Server
       when 'arbiter'; Trod::Arbiter.new.run!
       when 'worker';
         case ENV['TROD_TEST_TYPE']
-        when 'spec';     Trod::SpecWorker.new.run!
-        when 'scenario'; Trod::ScenarioWorker.new.run!
+        when 'spec';     Trod::Workers::SpecWorker.new.run!
+        when 'scenario'; Trod::Workers::ScenarioWorker.new.run!
         end
 
       else; raise "unknown role"

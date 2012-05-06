@@ -21,6 +21,8 @@ class Trod::Arbiter < Trod::Server
   rescue Object => e
     logger.error "#{e}\n#{e.backtrace*"\n"}"
     raise
+  ensure
+    debugger;1
   end
 
   def id

@@ -61,10 +61,7 @@ class Trod::Worker < Trod::Server
       report_event "running test: #{test.id}"
       test.trying!
 
-      case test.type
-      when 'spec'; result = run_spec(test.name)
-      when 'scenario'; result = true
-      end
+      result = run_test(test)
 
       report_event "done running test: #{test.id} #{result ? 'PASS' : 'FAIL'}"
       result ? test.pass! : test.fail!
