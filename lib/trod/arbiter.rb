@@ -11,12 +11,12 @@ class Trod::Arbiter < Trod::Server
   end
 
   def run!
-    # start_redis_server
-    # report_status
-    # detect_tests
-    # start_workers
-    # report_status_until_complete
-    # shutdown
+    start_redis_server
+    report_status
+    detect_tests
+    start_workers
+    report_status_until_complete
+    shutdown
 
     require "ruby-debug"
     debugger;1
