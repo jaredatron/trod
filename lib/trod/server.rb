@@ -5,7 +5,12 @@ class Trod::Server
   def self.start!
     case ENV['TROD_ROLE']
       when 'arbiter'; Trod::Arbiter.new.run!
-      when 'worker';  Trod::Worker.new.run!
+      when 'worker';
+        case ENV['TROD_TEST_TYPE']
+        when 'spec';     Trod::SpecWorker.new.run!
+        when 'scenario'; Trod::ScenarioWorker.new.run!
+        end
+
       else; raise "unknown role"
     end
   end
