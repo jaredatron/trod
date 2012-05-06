@@ -7,17 +7,28 @@ class Trod::Arbiter < Trod::Command
     start_workers
     report_status_until_complete
     shutdown
+
+    require "ruby-debug"
+    debugger;1
   end
 
   private
 
+  attr_reader :redis
+
   #
   def start_redis_server
-    report_event "starting redis server"
+    require 'simple-redis-server'
+    @redis_server = Redis::Server.new
+    @redis_server.start
+    sleep 0.2
+    @redis = @redis_server.connect
+    report_event "redis server started"
   end
 
   #
   def report_status
+    # TODO place a json file on S3
   end
 
   #

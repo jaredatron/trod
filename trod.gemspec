@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Trod::VERSION
 
-  gem.add_runtime_dependency "redis"
+  gem.add_runtime_dependency "simple-redis-server"
   gem.add_runtime_dependency "fog"
 
 end
