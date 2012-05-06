@@ -32,16 +32,16 @@ class Trod::Arbiter::Tests
 
   # executes a cucumber command to list all scenarios by name
   def detect_scenarios!
-    test_run.workspace.execute %W[
+    arbiter.project.execute %W[
       cucumber --quiet --dry-run --no-profile
-      --require #{Hobson.lib.join('hobson/formatters/scenarios.rb')}
-      --format Hobson::Formatters::Scenarios --out hobson_scenarios_list
+      --require #{Trod::LIB.join('trod/formatters/scenarios.rb')}
+      --format Trod::Formatters::Scenarios --out .trod-scenarios
     ]*' '
-    scenarios = test_run.workspace.root.join('hobson_scenarios_list').read.split("\n")
+    scenarios = arbiter.project.root.join('.trod-scenarios').read.split("\n")
     # some crazy duplicate detection code i copied from the interwebz
     dups = scenarios.inject({}) {|h,v| h[v]=h[v].to_i+1; h}.reject{|k,v| v==1}.keys
-    raise "Hobson cannot handle duplicate scenario names\nPlease correct these: #{dups.inspect}" if dups.present?
-    scenarios.each{|name| add "scenario:#{name}"}
+    raise "Trod cannot handle duplicate scenario names\nPlease correct these: #{dups.inspect}" if dups.present?
+    scenarios.each{|name| names << "scenario:#{name}"}
   end
 
 

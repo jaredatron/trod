@@ -10,4 +10,7 @@ module Trod
   autoload :Client,  'trod/client'
   autoload :Arbiter, 'trod/arbiter'
   autoload :Worker,  'trod/worker'
+
+  LIB = Pathname File.expand_path('..', __FILE__)
+
 end
