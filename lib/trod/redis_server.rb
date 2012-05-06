@@ -1,4 +1,0 @@
-class Trod::RedisServer
-
-
-end

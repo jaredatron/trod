@@ -2,7 +2,7 @@ require 'json'
 
 class Trod::Arbiter < Trod::Server
 
-  attr_reader :number_of_rspec_workers, :number_of_cucumber_workers
+  attr_reader :number_of_rspec_workers, :number_of_cucumber_workers, :redis_server
 
   def initialize
     super
@@ -54,8 +54,8 @@ class Trod::Arbiter < Trod::Server
     report_event "started starting workers"
 
     # THIS IS A TOTAL HACK FOR TESTING
-    ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker1 && ./init.rb').start
-    ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker2 && ./init.rb').start
+    #ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker1 && ./init.rb').start
+    #ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker2 && ./init.rb').start
 
     report_event "finished starting workers"
   end

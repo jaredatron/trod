@@ -2,8 +2,9 @@ require 'popen4'
 
 class Trod::Project
 
-  def root
-    @root ||= Pathname File.expand_path('.')
+  attr_reader :root
+  def initialize root
+    @root = Pathname(root)
   end
 
   def rvm?
