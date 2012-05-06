@@ -12,7 +12,7 @@ class Trod::Tests
   end
 
   def queues type
-    @queues[type] ||= Trod::Tests::Queue.new(redis, type)
+    @queues[type.to_sym] ||= Trod::Tests::Queue.new(redis, type)
   end
 
   def detect!
