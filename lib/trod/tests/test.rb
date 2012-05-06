@@ -66,16 +66,16 @@ class Trod::Tests::Test
   end
 
   def fail!
-    has_more_tries? ? enqueue! : self.result = 'fail'
+    need_to_be_run? ? enqueue! : self.result = 'fail'
   end
 
   def pending!
-    has_more_tries? ? enqueue! : self.result = 'pending'
+    need_to_be_run? ? enqueue! : self.result = 'pending'
   end
 
   def hung!
     redis.hincrby(:test_hangs, self, 1)
-    has_more_tries? ? enqueue! : self.result = 'hung'
+    need_to_be_run? ? enqueue! : self.result = 'hung'
   end
 
   # State

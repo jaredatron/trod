@@ -18,6 +18,9 @@ class Trod::Arbiter < Trod::Server
     start_workers
     report_status_until_complete
     shutdown
+  rescue Object => e
+    logger.error "#{e}\n#{e.backtrace*"\n"}"
+    raise
   end
 
   def id
@@ -50,6 +53,8 @@ class Trod::Arbiter < Trod::Server
       :number_of_rspec_workers => number_of_rspec_workers,
       :number_of_cucumber_workers => number_of_cucumber_workers,
       :tests => tests,
+      :tests_done => tests.find_all{|t| !t.need_to_be_run? }.size,
+      :tests_not_done => tests.find_all{|t| t.need_to_be_run? }.size,
     }
 
     workspace_path.join('temp_status_report.json').open('w'){|f|
@@ -75,6 +80,7 @@ class Trod::Arbiter < Trod::Server
 
     workers.each_with_index{|test_type, index|
       config_json = worker_config.merge(:test_type => test_type).to_json
+      # puts config_json
       start_local_worker_for_development! index, config_json
     }
 
@@ -87,6 +93,7 @@ class Trod::Arbiter < Trod::Server
     # TODO loop reporting state to S3 until all queues are empty & all workers are unregistered
     while tests.any?(&:need_to_be_run?) || !workers.empty?
       report_status
+      # debugger;1
       sleep 1
     end
     report_event "all done"
