@@ -49,6 +49,10 @@ class Trod::Tests
     @tests ||= redis.hkeys(:test_results).map{|id| Test.find(self, id) }
   end
 
+  def to_json *args
+    tests.to_json(*args)
+  end
+
   private
 
   # scans the workspace for spec files and uses their relative path as their name

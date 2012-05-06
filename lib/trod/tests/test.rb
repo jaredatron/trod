@@ -94,6 +94,16 @@ class Trod::Tests::Test
     !pass? && tries < MAX_TRIES
   end
 
+  def to_json *args
+    {
+      :name   => name,
+      :type   => type,
+      :result => result,
+      :tries  => tries,
+      :hangs  => hangs,
+    }.to_json
+  end
+
   private
 
   def redis

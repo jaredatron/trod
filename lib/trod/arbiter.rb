@@ -42,6 +42,19 @@ class Trod::Arbiter < Trod::Server
   def report_status
     report_event "reporting status"
     # TODO place a json file on S3
+    status = {
+      :workspace_path => workspace_path,
+      :project_workspace_path => project_workspace_path,
+      :project_origin => project_origin,
+      :project_sha => project_sha,
+      :number_of_rspec_workers => number_of_rspec_workers,
+      :number_of_cucumber_workers => number_of_cucumber_workers,
+      :tests => tests,
+    }
+
+    workspace_path.join('temp_status_report.json').open('w'){|f|
+      f.write status.to_json
+    }
   end
 
   #
