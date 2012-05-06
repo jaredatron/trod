@@ -14,4 +14,7 @@ Gem::Specification.new do |gem|
   gem.name          = "trod"
   gem.require_paths = ["lib"]
   gem.version       = Trod::VERSION
+
+  gem.add_runtime_dependency "redis"
+
 end

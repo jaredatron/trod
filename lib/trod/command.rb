@@ -14,6 +14,8 @@ class Trod::Command
     @args, @options = args, OpenStruct.new
     parse_args!
     p self
+    require 'pp'
+    pp options.send(:table)
     run!
   end
   attr_accessor :options

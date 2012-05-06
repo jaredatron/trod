@@ -47,4 +47,4 @@ SH
 
 puts command
 
-# system(command)
+system(command)

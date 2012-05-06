@@ -1,5 +1,6 @@
 require "trod/version"
 require 'optparse'
+require 'redis'
 
 module Trod
   autoload :Command, 'trod/command'

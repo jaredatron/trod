@@ -6,7 +6,7 @@ class Trod::Worker < Trod::Command
       worker.options.type = type
     end
 
-    opts.on("-r", "--redis") do |redis|
+    opts.on("-r", "--redis (redis://127.0.0.1:6379/0)") do |redis|
       worker.options.redis = redis
     end
 
@@ -14,6 +14,14 @@ class Trod::Worker < Trod::Command
 
   def run!
     puts "becoming a worker"
+
+    p redis
+  end
+
+  private
+
+  def redis
+    @redis ||= Redis.connect url: options.redis
   end
 
 end
