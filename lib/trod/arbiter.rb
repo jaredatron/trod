@@ -1,7 +1,5 @@
 class Trod::Arbiter < Trod::Command
 
-  autoload :Tests, 'trod/arbiter/tests'
-
   def run!
     start_redis_server
     report_status
@@ -65,7 +63,7 @@ class Trod::Arbiter < Trod::Command
   end
 
   def tests
-    @tests ||= Trod::Arbiter::Tests.new(self)
+    @tests ||= Trod::Tests.new(self)
   end
 
 end

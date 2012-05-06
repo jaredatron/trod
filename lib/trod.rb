@@ -7,6 +7,7 @@ require 'popen4'
 module Trod
   autoload :Command, 'trod/command'
   autoload :Project, 'trod/project'
+  autoload :Tests,   'trod/tests'
   autoload :Client,  'trod/client'
   autoload :Arbiter, 'trod/arbiter'
   autoload :Worker,  'trod/worker'
