@@ -1,3 +1,5 @@
+require 'json'
+
 class Trod::Arbiter < Trod::Command
 
   options{|opts, worker|
@@ -49,7 +51,13 @@ class Trod::Arbiter < Trod::Command
 
   #
   def start_workers
-    report_event "starting workers"
+    report_event "started starting workers"
+
+    # THIS IS A TOTAL HACK FOR TESTING
+    ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker1 && ./init.rb').start
+    ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker2 && ./init.rb').start
+
+    report_event "finished starting workers"
   end
 
   #
@@ -74,6 +82,10 @@ class Trod::Arbiter < Trod::Command
 
   def tests
     @tests ||= Trod::Tests.new(project, redis)
+  end
+
+  def workers
+    @workers ||= []
   end
 
 end

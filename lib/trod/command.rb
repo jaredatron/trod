@@ -1,4 +1,6 @@
 require "ostruct"
+require 'optparse'
+require 'redis'
 
 class Trod::Command
 

@@ -1,3 +1,5 @@
+require 'popen4'
+
 class Trod::Project
 
   def root
