@@ -1,16 +1,6 @@
-class Trod::Worker < Trod::ServerCommand
+require 'redis'
 
-  options{|opts, worker|
-
-    opts.on("-t", "--type (rspec|cucumber)") do |type|
-      worker.options.type = type.to_sym
-    end
-
-    opts.on("-r", "--redis (redis://127.0.0.1:6379/0)") do |redis|
-      worker.options.redis = redis
-    end
-
-  }
+class Trod::Worker < Trod::Server
 
   attr_reader :test_type, :redis
 
@@ -34,10 +24,9 @@ class Trod::Worker < Trod::ServerCommand
     debugger;1
   end
 
-  def to_s
-    @to_s ||= "worker:#{hostname}:#{Process.pid}"
+  def id
+    @id ||= "worker:#{hostname}:#{Process.pid}"
   end
-  alias_method :id, :to_s
 
   def hostname
     @hostname ||= `hostname`.chomp
@@ -57,13 +46,13 @@ class Trod::Worker < Trod::ServerCommand
   end
 
   def process_test_queue
-    report_event "processing #{options.type} queue"
+    report_event "processing #{test_type} queue"
     # TODO loop poping tests from redis
 
   end
 
   def test_queue_name
-    @test_queue_name ||= "tests:#{options.type}"
+    @test_queue_name ||= "tests:#{test_type}"
   end
 
   def report_event event

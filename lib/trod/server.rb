@@ -11,8 +11,8 @@ class Trod::Server
   attr_reader :project_origin, :project_sha
 
   def initialize
-    @project = ENV['TROD_PROJECT_ORIGIN']
-    @sha     = ENV['TROD_PROJECT_SHA']
+    @project_origin = ENV['TROD_PROJECT_ORIGIN']
+    @project_sha    = ENV['TROD_PROJECT_SHA']
   end
 
 end
