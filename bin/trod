@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path('../../lib', __FILE__)
+$:.unshift(lib) unless $:.include?(lib)
+
+require 'trod'
+
+case ARGV.first
+when 'worker'
+  ARGV.shift;
+  Trod::Worker.new
+when 'arbiter'
+  ARGV.shift;
+  Trod::Arbiter.new
+else
+  Trod::Client.new
+end
+

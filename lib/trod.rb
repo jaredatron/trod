@@ -1,5 +1,9 @@
 require "trod/version"
+require 'optparse'
 
 module Trod
-  # Your code goes here...
+  autoload :Command, 'trod/command'
+  autoload :Client,  'trod/client'
+  autoload :Arbiter, 'trod/arbiter'
+  autoload :Worker,  'trod/worker'
 end
