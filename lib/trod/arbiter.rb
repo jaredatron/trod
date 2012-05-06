@@ -64,6 +64,9 @@ class Trod::Arbiter < Trod::Command
   def report_status_until_complete
     # TODO loop reporting state to S3 until all queues are empty & all workers are unregistered
     report_event "complete"
+
+    require "ruby-debug"
+    debugger;1
   end
 
   #
