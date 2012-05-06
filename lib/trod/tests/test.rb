@@ -1,9 +1,23 @@
 class Trod::Tests::Test
 
-  attr_reader :redis, :type, :name
+  MAX_TRIES = 3
+  POSSIBLE_RESULTS = %w{pass fail pending hung}
 
-  def initialize redis, id
-    @redis = redis
+  class << self
+    def register tests, type, name
+      redis = tests.redis
+      test = new(redis, "#{type}:#{name}")
+      test.trying! # this sets it to 0
+      test
+    end
+
+    alias_method :find, :new
+  end
+
+  attr_reader :tests, :type, :name
+
+  def initialize tests, id
+    @tests = tests
     @type, @name = id.scan(/^(.+?):(.+)$/).first
   end
 
@@ -14,6 +28,71 @@ class Trod::Tests::Test
 
   def inspect
     %{#<#{self.class} #{id}>}
+  end
+
+  def result
+    redis.hget(:test_results, self)
+  end
+
+  def result= result
+    redis.hset(:test_results, self, result)
+  end
+
+  def tries
+    redis.hget(:test_tries, self).to_i
+  end
+
+  def trying!
+    redis.hincrby(:test_tries, self, 1)
+  end
+
+  def hangs
+    redis.hget(:test_hangs, self)
+  end
+
+  # Actions
+
+  def enqueue!
+    tests.queue_for(type).push(self) if should_be_enqueued?
+  end
+
+  def pass!
+    self.result = 'pass'
+  end
+
+  def fail!
+    has_more_tries? ? enqueue! : self.result = 'fail'
+  end
+
+  def pending!
+    has_more_tries? ? enqueue! : self.result = 'pending'
+  end
+
+  def hung!
+    redis.hincrby(:test_hangs, self, 1)
+    has_more_tries? ? enqueue! : self.result = 'hung'
+  end
+
+  # State
+
+  def status
+
+  end
+
+  POSSIBLE_RESULTS.each{|state|
+    define_method(:"#{state}?"){ # def pass?
+      result == state            # def fail?
+    }                            # def pending?
+  }                              # def hung?
+
+  def should_be_enqueued?
+    !pass? && tries < MAX_TRIES
+  end
+
+  private
+
+  def redis
+    tests.redis
   end
 
 end

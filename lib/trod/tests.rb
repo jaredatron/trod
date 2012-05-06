@@ -11,31 +11,30 @@ class Trod::Tests
     @project, @redis, @queues = project, redis, {}
   end
 
-  def queues type
+  def queue_for type
     @queues[type.to_sym] ||= Trod::Tests::Queue.new(redis, type)
   end
 
   def detect!
     @tests = []
 
-    {:spec => detect_specs!, :scenario => detect_scenarios!}.each{|type, names|
-      names.each{|name| @tests << Test.new(redis, "#{type}:#{name}") }
-    }
+    test_names = {:spec => detect_specs!, :scenario => detect_scenarios!}
 
     redis.pipelined{
-      tests.each{|test|
-        redis.hset(:test_results, test, nil)
-        redis.hset(:test_tries, test, 0)
-        queues(test.type).push(test)
+      test_names.each{|type, names|
+        queue = queue_for(type)
+        names.each{|name|
+          test = Test.register(self, type, name)
+          @tests.push test
+          queue.push test
+        }
       }
-      redis.set :number_of_tests, @number_of_tests = tests.size
+      redis.set :number_of_tests, @number_of_tests = @tests.size
     }
   end
 
-  def each
-    tests.each{|name|
-      yield name # TODO Test.new
-    }
+  def each &block
+    tests.each(&block)
   end
 
   def number_of_tests
@@ -45,7 +44,7 @@ class Trod::Tests
   alias_method :size, :number_of_tests
 
   def tests
-    @tests ||= redis.hkeys(:test_results).map{|id| self[id] }
+    @tests ||= redis.hkeys(:test_results).map{|id| Test.find(self, id) }
   end
 
   private

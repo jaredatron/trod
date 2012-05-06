@@ -46,9 +46,12 @@ class Trod::Worker < Trod::Server
     report_event "processing #{test_type} queue"
     # TODO loop poping tests from redis
 
-    # while test = queue.pop
+    while test = queue.pop
+      report_event "running test: #{test.id}"
       require "ruby-debug"
       debugger;1
+      test.pass!
+    end
 
     #   queue.push(test)
     # end
@@ -74,7 +77,7 @@ class Trod::Worker < Trod::Server
   end
 
   def queue
-    @queue ||= tests.queues(test_type)
+    @queue ||= tests.queue_for(test_type)
   end
 
 end
