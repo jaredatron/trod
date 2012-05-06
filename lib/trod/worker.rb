@@ -1,4 +1,4 @@
-class Trod::Worker < Trod::Command
+class Trod::Worker < Trod::ServerCommand
 
   options{|opts, worker|
 
@@ -12,13 +12,26 @@ class Trod::Worker < Trod::Command
 
   }
 
+  attr_reader :test_type, :redis
+
+  def initialize
+    super
+    @test_type = ENV['TROD_TEST_TYPE']
+    @redis     = Redis.connect :url => ENV['TROD_REDIS']
+  end
+
+
   def run!
-    register
-    prepare_project
-    start_test_server
-    process_test_queue
-    unregister
-    shutdown
+
+    # register
+    # prepare_project
+    # start_test_server
+    # process_test_queue
+    # unregister
+    # shutdown
+
+    require "ruby-debug"
+    debugger;1
   end
 
   def to_s
@@ -68,10 +81,6 @@ class Trod::Worker < Trod::Command
   def shutdown
     report_event "shutting down"
     # TODO shutdown
-  end
-
-  def redis
-    @redis ||= Redis.connect :url => options.redis
   end
 
 end

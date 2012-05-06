@@ -1,22 +1,22 @@
 require 'json'
 
-class Trod::Arbiter < Trod::Command
+class Trod::Arbiter < Trod::Server
 
-  options{|opts, worker|
+  attr_reader :number_of_rspec_workers, :number_of_cucumber_workers
 
-    opts.on("-w", "--workers ({rspec:5,cucumber:15})") do |workers|
-      worker.options.workers = JSON.parse(workers)
-    end
-
-  }
+  def initialize
+    super
+    @number_of_rspec_workers    = ENV['TROD_NUMBER_OF_RSPEC_WORKERS']
+    @number_of_cucumber_workers = ENV['TROD_NUMBER_OF_CUCUMBER_WORKERS']
+  end
 
   def run!
-    start_redis_server
-    report_status
-    detect_tests
-    start_workers
-    report_status_until_complete
-    shutdown
+    # start_redis_server
+    # report_status
+    # detect_tests
+    # start_workers
+    # report_status_until_complete
+    # shutdown
 
     require "ruby-debug"
     debugger;1
