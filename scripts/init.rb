@@ -4,26 +4,35 @@ require 'pathname'
 require 'json'
 require 'pp'
 
-WORKSPACE_PATH = File.expand_path('workspace')
-CONFIG_PATH = File.expand_path('config.json') # this will be cloud tags later
-CONFIG = JSON.parse File.read CONFIG_PATH
+workspace_path = File.expand_path('workspace')
+config_path = File.expand_path('config.json') # this will be cloud tags later
+config = JSON.parse File.read config_path
 
-Pathname(WORKSPACE_PATH).rmtree if File.exist? WORKSPACE_PATH
+Pathname(workspace_path).rmtree if File.exist? workspace_path
 
-puts "WORKSPACE PATH:\n#{WORKSPACE_PATH}"
+puts "WORKSPACE PATH:\n#{workspace_path}"
 puts "CONFIG:"
-pp CONFIG
+pp config
 puts
 
-CONFIG["project"] or raise "project missing"
-CONFIG["sha"]     or raise "sha missing"
+project = config["project"] or raise "project missing"
+sha     = config["sha"]     or raise "sha missing"
+arbiter = config["arbiter"] or raise "arbiter missing"
+if arbiter == true
+  workers = config["workers"] or raise "workers missing"
+  trod_command = "trod arbiter"
+else
+  worker = config["worker"] or raise "worker missing"
+  trod_command = "trod worker --type #{worker.inspect} --redis #{arbiter.inspect}"
+end
+
 
 command = <<-SH
-  git clone --verbose -- #{CONFIG["project"].inspect} #{WORKSPACE_PATH.inspect} &&
-  cd #{WORKSPACE_PATH.inspect} &&
-  git checkout  #{CONFIG["sha"].inspect} &&
+  git clone --verbose -- #{project.inspect} #{workspace_path.inspect} &&
+  cd #{workspace_path.inspect} &&
+  git checkout  #{sha.inspect} &&
   bundle check || bundle install &&
-  bundle exec trod worker
+  bundle exec #{trod_command}
 SH
 
 puts command

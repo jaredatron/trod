@@ -83,7 +83,7 @@ The html5 web app for your test run auto refreshes to display the following even
 
   The init script will start trod using the following command:
 
-      trod worker --type=rspec --redis="redis://ec2-0-0-0-0.compute-1.amazonaws.com:6380/0"
+      trod worker --type rspec --redis redis://ec2-0-0-0-0.compute-1.amazonaws.com:6380/0
 
   The worker process then does the following:
 
