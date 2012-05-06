@@ -7,6 +7,7 @@ class Trod::Tests::Test
     def register tests, type, name
       test = new(tests, "#{type}:#{name}")
       test.result = nil
+      test.enqueue!
       test
     end
 
@@ -57,7 +58,7 @@ class Trod::Tests::Test
   # Actions
 
   def enqueue!
-    queue.push(self) if should_be_enqueued?
+    queue.push(self) if need_to_be_run?
   end
 
   def pass!
@@ -89,7 +90,7 @@ class Trod::Tests::Test
     }                            # def pending?
   }                              # def hung?
 
-  def should_be_enqueued?
+  def need_to_be_run?
     !pass? && tries < MAX_TRIES
   end
 

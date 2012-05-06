@@ -11,7 +11,6 @@ class Trod::Worker < Trod::Server
     logger.info "worker started #{self.inspect}"
   end
 
-
   def run!
     register
     prepare_project
@@ -47,6 +46,10 @@ class Trod::Worker < Trod::Server
     # TODO loop poping tests from redis
 
     while test = queue.pop
+      if !test.need_to_be_run?
+        report_event "skipping test: #{test.id}"
+        next
+      end
       report_event "running test: #{test.id}"
       test.trying!
       # require "ruby-debug"

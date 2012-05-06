@@ -42,6 +42,7 @@ class Trod::Arbiter < Trod::Server
 
   #
   def report_status
+    report_event "reporting status"
     # TODO place a json file on S3
   end
 
@@ -57,19 +58,26 @@ class Trod::Arbiter < Trod::Server
   def start_workers
     report_event "started starting workers"
 
+
+
     workers = \
       (1..number_of_rspec_workers).to_a.map{:spec} +
       (1..number_of_cucumber_workers).to_a.map{:scenario}
 
-    puts "\n\n MANUAL FOR NOW \n\n"
+    workers.each_with_index{|test_type, index|
+      config_json = worker_config.merge(:test_type => test_type).to_json
 
-    workers.each{|test_type|
-      puts "START A WORKER WITH THIS CONFIG:"
-      puts worker_config.merge(:test_type => test_type).to_json
-      puts
+      dir = Pathname("/Volumes/Chest/deadlyicon/tmp/trod_worker#{index}")
+      dir.mkdir unless dir.exist?
+      dir.join('config.json').open('w'){|f| f.write config_json }
+      unless dir.join('init.rb').exist?
+        `cd #{dir.to_s.inspect} && ln -s /Volumes/Chest/deadlyicon/Work/trod/scripts/init.rb`
+      end
+      cmd  = "cd #{dir.to_s.inspect} && ./init.rb"
+      puts "\n\nSTARTING: #{cmd}"
+      cp = ChildProcess.new(cmd).start
+      puts "PID: #{cp.pid}"
     }
-
-    puts "\n\n MANUAL FOR NOW \n\n"
 
     debugger;1
 
@@ -82,9 +90,13 @@ class Trod::Arbiter < Trod::Server
 
   #
   def report_status_until_complete
+    report_event "waiting for workers to finish"
     # TODO loop reporting state to S3 until all queues are empty & all workers are unregistered
-    require "ruby-debug"
-    debugger;1
+    while tests.any?(&:need_to_be_run?) || !workers.empty?
+      report_status
+      sleep 1
+    end
+    report_event "all done"
   end
 
   #
@@ -93,12 +105,13 @@ class Trod::Arbiter < Trod::Server
   end
 
   def workers
-    redis.smembers(:workers).map{|id|
-      worker = Trod::Worker.new
-      worker.instance_variable_set(:@id, id)
-      worker.instance_variable_set(:@redis, redis)
-      worker
-    }
+    redis.smembers(:workers)
+    # .map{|id|
+      # worker = Trod::Worker.new
+      # worker.instance_variable_set(:@id, id)
+      # worker.instance_variable_set(:@redis, redis)
+      # worker
+    # }
   end
 
   def worker_config

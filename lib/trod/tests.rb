@@ -28,9 +28,7 @@ class Trod::Tests
       test_names.each{|type, names|
         queue = queues[type.to_s]
         names.each{|name|
-          test = Test.register(self, type, name)
-          @tests.push test
-          queue.push test
+          @tests << Test.register(self, type, name)
         }
       }
       redis.set :number_of_tests, @number_of_tests = @tests.size
