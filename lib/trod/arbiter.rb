@@ -18,8 +18,6 @@ class Trod::Arbiter < Trod::Server
     start_workers
     report_status_until_complete
     shutdown
-
-    debugger;1
   end
 
   def id
@@ -58,32 +56,14 @@ class Trod::Arbiter < Trod::Server
   def start_workers
     report_event "started starting workers"
 
-
-
     workers = \
       (1..number_of_rspec_workers).to_a.map{:spec} +
       (1..number_of_cucumber_workers).to_a.map{:scenario}
 
     workers.each_with_index{|test_type, index|
       config_json = worker_config.merge(:test_type => test_type).to_json
-
-      dir = Pathname("/Volumes/Chest/deadlyicon/tmp/trod_worker#{index}")
-      dir.mkdir unless dir.exist?
-      dir.join('config.json').open('w'){|f| f.write config_json }
-      unless dir.join('init.rb').exist?
-        `cd #{dir.to_s.inspect} && ln -s /Volumes/Chest/deadlyicon/Work/trod/scripts/init.rb`
-      end
-      cmd  = "cd #{dir.to_s.inspect} && ./init.rb"
-      puts "\n\nSTARTING: #{cmd}"
-      cp = ChildProcess.new(cmd).start
-      puts "PID: #{cp.pid}"
+      start_local_worker_for_development! index, config_json
     }
-
-    debugger;1
-
-    # THIS IS A TOTAL HACK FOR TESTING
-    #ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker1 && ./init.rb').start
-    #ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker2 && ./init.rb').start
 
     report_event "finished starting workers"
   end
@@ -121,6 +101,20 @@ class Trod::Arbiter < Trod::Server
       :role => :worker,
       :redis => redis.id,
     }
+  end
+
+
+  def start_local_worker_for_development! index, config_json
+    dir = Pathname("/Volumes/Chest/deadlyicon/tmp/trod_worker#{index}")
+    dir.mkdir unless dir.exist?
+    dir.join('config.json').open('w'){|f| f.write config_json }
+    unless dir.join('init.rb').exist?
+      `cd #{dir.to_s.inspect} && ln -s /Volumes/Chest/deadlyicon/Work/trod/scripts/init.rb`
+    end
+    cmd  = "cd #{dir.to_s.inspect} && ./init.rb"
+    puts "\n\nSTARTING: #{cmd}"
+    cp = ChildProcess.new(cmd).start
+    puts "PID: #{cp.pid}"
   end
 
 end
