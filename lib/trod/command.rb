@@ -24,11 +24,11 @@ class Trod::Command
     %{#<#{self.class} #{options.send(:table).inspect}>}
   end
 
-  private
-
   def project
     @project ||= Trod::Project.new
   end
+
+  private
 
   def default_project
     `git config --get remote.origin.url`.chomp

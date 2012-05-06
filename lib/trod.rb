@@ -1,6 +1,8 @@
 require "trod/version"
 require 'optparse'
 require 'redis'
+require 'pathname'
+require 'popen4'
 
 module Trod
   autoload :Command, 'trod/command'
