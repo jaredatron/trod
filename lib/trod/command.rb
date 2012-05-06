@@ -26,6 +26,10 @@ class Trod::Command
 
   private
 
+  def project
+    @project ||= Trod::Project.new
+  end
+
   def default_project
     `git config --get remote.origin.url`.chomp
   end

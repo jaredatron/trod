@@ -34,6 +34,7 @@ class Trod::Arbiter < Trod::Command
   #
   def detect_tests
     report_event "detecting tests"
+    tests.detect!
   end
 
   #
@@ -59,6 +60,10 @@ class Trod::Arbiter < Trod::Command
   # returns the events that arbiter has logged so far
   def logged_events
     redis.hgetall("arbiter:events").to_a.map{|t,e| [Time.at(t.to_f),e] }.sort_by(&:first)
+  end
+
+  def tests
+    @tests ||= Trod::Arbiter::Tests.new(self)
   end
 
 end
