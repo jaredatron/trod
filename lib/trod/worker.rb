@@ -48,14 +48,12 @@ class Trod::Worker < Trod::Server
 
     while test = queue.pop
       report_event "running test: #{test.id}"
-      require "ruby-debug"
-      debugger;1
+      test.trying!
+      # require "ruby-debug"
+      # debugger;1
       test.pass!
     end
-
-    #   queue.push(test)
-    # end
-
+    report_event "finished processing #{test_type} queue"
   end
 
   def test_queue_name
@@ -73,7 +71,7 @@ class Trod::Worker < Trod::Server
 
   def shutdown
     report_event "shutting down"
-    # TODO shutdown
+    exit
   end
 
   def queue

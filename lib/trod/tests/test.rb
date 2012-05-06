@@ -5,9 +5,8 @@ class Trod::Tests::Test
 
   class << self
     def register tests, type, name
-      redis = tests.redis
-      test = new(redis, "#{type}:#{name}")
-      test.trying! # this sets it to 0
+      test = new(tests, "#{type}:#{name}")
+      test.result = nil
       test
     end
 
@@ -44,6 +43,7 @@ class Trod::Tests::Test
 
   def trying!
     redis.hincrby(:test_tries, self, 1)
+    self
   end
 
   def hangs
