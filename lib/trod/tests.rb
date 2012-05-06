@@ -1,27 +1,23 @@
 class Trod::Tests
 
-  autoload :Tests, 'trod/tests/test'
+  autoload :Test, 'trod/tests/test'
 
   include Enumerable
 
-  attr_reader :project
+  attr_reader :project, :redis
 
   def initialize project, redis
     @project, @redis = project, redis
   end
 
-  # def add type, name
-  #   tests << Test.new(redis, type, name)
-  # end
-
   def detect!
-    @tests = []
     redis.pipelined{
       detect_specs!.each{|name| redis.rpush(:tests, "specs:#{name}") }
       detect_scenarios!.each{|name| redis.rpush(:tests, "scenario:#{name}") }
-      @number_of_tests = detect_specs!.size + detect_scenarios!
+      @number_of_tests = detect_specs!.size + detect_scenarios!.size
       redis.set :number_of_tests, @number_of_tests
     }
+    @tests = nil
   end
 
   def each
@@ -33,10 +29,13 @@ class Trod::Tests
   def number_of_tests
     @number_of_tests ||= redis.get(:number_of_tests).to_i
   end
+  alias_method :length, :number_of_tests
+  alias_method :size, :number_of_tests
 
   def tests
-    @tests ||= redis.lrange(:tests, 0, 999999999).map{|test|
-      Test.new(redis, *test.scan(/^(.+?):(.+)$/).first)
+    @tests ||= redis.lrange(:tests, 0, number_of_tests-1).each_with_index.map{|test, index|
+      type, name = test.scan(/^(.+?):(.+)$/).first
+      Test.new(redis, index, type, name)
     }
   end
 
@@ -51,7 +50,7 @@ class Trod::Tests
 
   # executes a cucumber command to list all scenarios by name
   def detect_scenarios!
-    arbiter.project.execute %W[
+    project.execute %W[
       cucumber --quiet --dry-run --no-profile
       --require #{Trod::LIB.join('trod/formatters/scenarios.rb')}
       --format Trod::Formatters::Scenarios --out .trod-scenarios

@@ -33,8 +33,10 @@ class Trod::Arbiter < Trod::Command
 
   #
   def detect_tests
-    report_event "detecting tests"
+    report_event "started detecting tests"
     tests.detect!
+    report_event "completed detecting tests"
+    report_status
   end
 
   #
@@ -63,7 +65,7 @@ class Trod::Arbiter < Trod::Command
   end
 
   def tests
-    @tests ||= Trod::Tests.new(self)
+    @tests ||= Trod::Tests.new(project, redis)
   end
 
 end
