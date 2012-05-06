@@ -1,3 +1,5 @@
+require 'ruby-debug'
+
 require "trod/version"
 require 'pathname'
 

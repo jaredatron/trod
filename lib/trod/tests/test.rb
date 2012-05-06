@@ -7,14 +7,13 @@ class Trod::Tests::Test
     @type, @name = id.scan(/^(.+?):(.+)$/).first
   end
 
+  def id
+    "#{type}:#{name}"
+  end
+  alias_method :to_s, :id
+
   def inspect
-    %{#<#{self.class} ##{index} #{type}:#{name}>}
+    %{#<#{self.class} #{id}>}
   end
-  alias_method :to_s, :inspect
-
-  def index
-
-  end
-
 
 end

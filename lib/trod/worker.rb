@@ -14,11 +14,6 @@ class Trod::Worker < Trod::Server
 
   def run!
     register
-
-
-    require "ruby-debug"
-    debugger;1
-
     prepare_project
     start_test_server
     process_test_queue
@@ -51,6 +46,13 @@ class Trod::Worker < Trod::Server
     report_event "processing #{test_type} queue"
     # TODO loop poping tests from redis
 
+    # while test = queue.pop
+      require "ruby-debug"
+      debugger;1
+
+    #   queue.push(test)
+    # end
+
   end
 
   def test_queue_name
@@ -69,6 +71,10 @@ class Trod::Worker < Trod::Server
   def shutdown
     report_event "shutting down"
     # TODO shutdown
+  end
+
+  def queue
+    @queue ||= tests.queues(test_type)
   end
 
 end
