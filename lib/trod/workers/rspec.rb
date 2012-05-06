@@ -1,3 +1,3 @@
-class Trod::Workers::Rspec << Trod::Worker
+class Trod::Workers::Rspec < Trod::Worker
 
 end
