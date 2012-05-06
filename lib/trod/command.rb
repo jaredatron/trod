@@ -13,10 +13,14 @@ class Trod::Command
   def initialize args=ARGV.clone
     @args, @options = args, OpenStruct.new
     parse_args!
-    puts "#{self.class} #{options.inspect}"
+    p self
     run!
   end
   attr_accessor :options
+
+  def inspect
+    %{#<#{self.class} #{options.send(:table).inspect}>}
+  end
 
   private
 
