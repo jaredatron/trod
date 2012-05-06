@@ -20,10 +20,20 @@ sha     = config["sha"]     or raise "sha missing"
 arbiter = config["arbiter"] or raise "arbiter missing"
 if arbiter == true
   workers = config["workers"] or raise "workers missing"
-  trod_command = "trod arbiter"
+  trod_command = %W{
+    trod arbiter
+    --project #{project.inspect}
+    --sha #{sha.inspect}
+  }
 else
   worker = config["worker"] or raise "worker missing"
-  trod_command = "trod worker --type #{worker.inspect} --redis #{arbiter.inspect}"
+  trod_command = %W{
+    trod worker
+    --project #{project.inspect}
+    --sha #{sha.inspect}
+    --type #{worker.inspect}
+    --redis #{arbiter.inspect}
+  }
 end
 
 
@@ -32,9 +42,9 @@ command = <<-SH
   cd #{workspace_path.inspect} &&
   git checkout  #{sha.inspect} &&
   bundle check || bundle install &&
-  bundle exec #{trod_command}
+  bundle exec #{trod_command * ' '}
 SH
 
 puts command
 
-system(command)
+# system(command)
