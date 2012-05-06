@@ -52,9 +52,13 @@ class Trod::Arbiter < Trod::Command
     report_event "shutting down"
   end
 
-
   def report_event event
-    redis.zadd("arbiter:events", "#{Time.now.utc.to_f}:#{event}")
+    redis.hset("arbiter:events", Time.now.utc.to_f, event)
+  end
+
+  # returns the events that arbiter has logged so far
+  def logged_events
+    redis.hgetall("arbiter:events").to_a.map{|t,e| [Time.at(t.to_f),e] }.sort_by(&:first)
   end
 
 end

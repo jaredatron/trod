@@ -54,7 +54,7 @@ class Trod::Worker < Trod::Command
   end
 
   def report_event event
-    redis.zadd("worker:#{id}:events", "#{Time.now.utc.to_f}:#{event}")
+    redis.rpush("worker:#{id}:events", "#{Time.now.utc.to_f}:#{event}")
   end
 
   def register
