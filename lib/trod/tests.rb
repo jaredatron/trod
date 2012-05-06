@@ -5,14 +5,18 @@ class Trod::Tests
 
   include Enumerable
 
-  attr_reader :project, :redis
+  attr_reader :project, :redis, :queues
 
   def initialize project, redis
-    @project, @redis, @queues = project, redis, {}
+    @project, @redis = project, redis
+    @queues = {
+      'spec'     => Trod::Tests::Queue.new(self, :spec),
+      'scenario' => Trod::Tests::Queue.new(self, :scenario),
+    }
   end
 
-  def queue_for type
-    @queues[type.to_sym] ||= Trod::Tests::Queue.new(redis, type)
+  def find id
+    Test.find(self, id)
   end
 
   def detect!
@@ -22,7 +26,7 @@ class Trod::Tests
 
     redis.pipelined{
       test_names.each{|type, names|
-        queue = queue_for(type)
+        queue = queues[type.to_s]
         names.each{|name|
           test = Test.register(self, type, name)
           @tests.push test

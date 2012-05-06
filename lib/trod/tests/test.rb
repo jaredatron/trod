@@ -29,6 +29,10 @@ class Trod::Tests::Test
     %{#<#{self.class} #{id}>}
   end
 
+  def queue
+    tests.queues[type]
+  end
+
   def result
     redis.hget(:test_results, self)
   end
@@ -53,7 +57,7 @@ class Trod::Tests::Test
   # Actions
 
   def enqueue!
-    tests.queue_for(type).push(self) if should_be_enqueued?
+    queue.push(self) if should_be_enqueued?
   end
 
   def pass!

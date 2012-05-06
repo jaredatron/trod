@@ -1,9 +1,9 @@
 class Trod::Tests::Queue
 
-  attr_reader :redis, :test_type, :key
+  attr_reader :tests, :test_type, :key
 
-  def initialize redis, test_type
-    @redis, @test_type = redis, test_type.to_s
+  def initialize tests, test_type
+    @tests, @test_type = tests, test_type.to_s
     @key = "#{test_type}s_needing_to_be_run"
   end
 
@@ -13,7 +13,8 @@ class Trod::Tests::Queue
   end
 
   def pop
-    Trod::Tests::Test.new(redis, redis.rpop(key))
+    id = redis.rpop(key)
+    tests.find(id) if id
   end
 
   def to_a
@@ -24,5 +25,11 @@ class Trod::Tests::Queue
     redis.lrange(key)
   end
   alias_method :size, :length
+
+  private
+
+  def redis
+    tests.redis
+  end
 
 end

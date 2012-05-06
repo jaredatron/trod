@@ -19,7 +19,6 @@ class Trod::Arbiter < Trod::Server
     report_status_until_complete
     shutdown
 
-    require "ruby-debug"
     debugger;1
   end
 
@@ -72,6 +71,8 @@ class Trod::Arbiter < Trod::Server
 
     puts "\n\n MANUAL FOR NOW \n\n"
 
+    debugger;1
+
     # THIS IS A TOTAL HACK FOR TESTING
     #ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker1 && ./init.rb').start
     #ChildProcess.new('cd /Volumes/Chest/deadlyicon/tmp/trod_worker2 && ./init.rb').start
@@ -82,8 +83,6 @@ class Trod::Arbiter < Trod::Server
   #
   def report_status_until_complete
     # TODO loop reporting state to S3 until all queues are empty & all workers are unregistered
-    report_event "complete"
-
     require "ruby-debug"
     debugger;1
   end
@@ -94,7 +93,12 @@ class Trod::Arbiter < Trod::Server
   end
 
   def workers
-    redis.smembers(:workers).map{|id| }
+    redis.smembers(:workers).map{|id|
+      worker = Trod::Worker.new
+      worker.instance_variable_set(:@id, id)
+      worker.instance_variable_set(:@redis, redis)
+      worker
+    }
   end
 
   def worker_config

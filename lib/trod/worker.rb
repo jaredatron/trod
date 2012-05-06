@@ -22,7 +22,7 @@ class Trod::Worker < Trod::Server
   end
 
   def id
-    @id ||= "worker:#{hostname}:#{Process.pid}"
+    @id ||= "worker:#{test_type}:#{hostname}:#{Process.pid}"
   end
 
   def hostname
@@ -75,7 +75,7 @@ class Trod::Worker < Trod::Server
   end
 
   def queue
-    @queue ||= tests.queue_for(test_type)
+    @queue ||= tests.queues[test_type]
   end
 
 end
