@@ -83,6 +83,8 @@ class Trod::Arbiter < Trod::Server
     workers.each_with_index{|test_type, index|
       config_json = worker_config.merge(:test_type => test_type).to_json
       # puts config_json
+
+      # TODO make two classes, one for a local worker one for a cloud worker
       start_local_worker_for_development! index, config_json
     }
 
