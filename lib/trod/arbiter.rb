@@ -127,13 +127,15 @@ class Trod::Arbiter < Trod::Server
     }
   end
 
+  TMP_PATH = Pathname File.expand_path('~/tmp/')
+  INIT_SCRIPT_PATH = Trod::LIB + '../scripts/init.rb'
 
   def start_local_worker_for_development! index, config_json
-    dir = Pathname("/Volumes/Chest/deadlyicon/tmp/trod_worker#{index}")
+    dir = TMP_PATH + "trod_worker#{index}"
     dir.mkdir unless dir.exist?
     dir.join('config.json').open('w'){|f| f.write config_json }
     unless dir.join('init.rb').exist?
-      `cd #{dir.to_s.inspect} && ln -s /Volumes/Chest/deadlyicon/Work/trod/scripts/init.rb`
+      `cd #{dir.to_s.inspect} && ln -s #{INIT_SCRIPT_PATH}`
     end
     cmd  = "cd #{dir.to_s.inspect} && ./init.rb"
     puts "\n\nSTARTING: #{cmd}"
