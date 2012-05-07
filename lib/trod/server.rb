@@ -37,11 +37,16 @@ class Trod::Server
   end
 
   def logger
-    @logger ||= begin
+    @logger or begin
       log_dir = workspace_path.join('log')
       log_dir.mkdir unless log_dir.exist?
-      Logger.new(log_dir.join('trod.log'))
+      @logger = Logger.new(log_dir.join('trod.log'))
+      logger.formatter = proc{ |severity, datetime, progname, msg|
+        padded_id = "#{id}#{' '*50}"[0..50]
+        msg.split("\n").map{|line| "[#{padded_id}][#{datetime}]: #{line}" }.join("\n")+"\n"
+      }
     end
+    @logger
   end
 
   def report_event event

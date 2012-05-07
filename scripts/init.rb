@@ -23,9 +23,12 @@ project_sha    or raise "missing project sha"
 
 config.each_pair{|key, value| ENV["TROD_#{key.upcase}"] = value.to_s }
 
+# TODO we assume rvm here now, we need to not do that in the future
 command = <<-SH
+  source ~/.rvm/scripts/rvm &&
   git clone --verbose -- #{project_origin.inspect} #{project_workspace_path.inspect} &&
   cd #{project_workspace_path.inspect} &&
+  rvm rvmrc trust &&
   git checkout #{project_sha.inspect} &&
   bundle check || bundle install &&
   bundle exec trod-server

@@ -19,6 +19,7 @@ class Trod::Arbiter < Trod::Server
     report_status_until_complete
     shutdown
   rescue Object => e
+    puts "#{e}\n#{e.backtrace*"\n"}"
     logger.error "#{e}\n#{e.backtrace*"\n"}"
     raise
   ensure
